@@ -1,6 +1,8 @@
 import { logger } from "../lib/logger";
 import { RSSService } from '../services/rss';
+import { DynamoDBService } from '../services/dynamodb';
 const rss = RSSService();
+const ddb = DynamoDBService();
 
 const getEndPath = (url: string) => {
   const split = url.split('/');
@@ -12,10 +14,20 @@ const getEndPath = (url: string) => {
 
 export const handler = async (event: any) => {
   logger.info('Fetching articles');
+
+  const groupExists = await ddb.groupExists(ddb.getPK());
+  if (groupExists) {
+    return {
+      skip: 'true',
+      articleUrls: [],
+    }
+  }
+
   const articleUrls = await rss.getArticleUrls();
 
   const basePaths: string[] = [];
   return {
+    skip: 'false',
     articleUrls: articleUrls
       .reduce((arr: any, url: string) => {
         if (!basePaths.includes(getEndPath(url))) {

@@ -105,7 +105,14 @@ stepFunctions:
             Type: Task
             Resource:
               Fn::GetAtt: [fetchArticles, Arn]
-            Next: ExtractArticleText
+            Next: ShouldSkip
+          ShouldSkip:
+            Type: Choice
+            Choices:
+              - Variable: "$.skip"
+                StringEquals: "true"
+                Next: Done
+            Default: ExtractArticleText
           ExtractArticleText:
             Type: Task
             Resource:
@@ -127,5 +134,8 @@ stepFunctions:
             Type: Task
             Resource:
               Fn::GetAtt: [publishArticles, Arn]
+            End: true
+          Done:
+            Type: Pass
             End: true
   validate: true

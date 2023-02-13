@@ -1,5 +1,5 @@
 import { DynamoDB } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, BatchWriteCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, BatchWriteCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { addDays, format } from 'date-fns';
 import { v4 as uuid } from 'uuid';
 
@@ -13,14 +13,27 @@ export const DynamoDBService = () => {
   const ddb = DynamoDBDocumentClient.from(client);
   const TableName = process.env.DYNAMO_TABLE || "";
 
+  const groupExists = async (pk: string) => {
+    const result = await ddb.send(new GetCommand({
+      TableName,
+      Key: {
+        pk,
+        sk: pk,
+      },
+    }));
+    return !!result.Item;
+  };
+
+  const getPK = () => `GROUP#${format(new Date(), "MM-dd-yyyy")}`;
+
   const saveArticles = async (articles: Article[]) => {
     const headlines = articles.map((article) => article.headline);
-    const today = format(new Date(), "MM-dd-yyyy");
+    const pk = getPK();
 
     const group = {
-      pk: `GROUP#${today}`,
-      sk: `GROUP#${today}`,
-      title: today,
+      pk,
+      sk: pk,
+      title: pk.split('#')[1],
       headlines: headlines,
       docType: 'group',
       // Expire in 20 days
@@ -33,7 +46,7 @@ export const DynamoDBService = () => {
     }));
 
     const items = articles.map((article) => ({
-      pk: `GROUP#${today}`,
+      pk,
       sk: `ARTICLE#${uuid()}`,
       title: article.headline,
       summary: article.summary,
@@ -54,5 +67,7 @@ export const DynamoDBService = () => {
 
   return {
     saveArticles,
+    groupExists,
+    getPK,
   };
 };

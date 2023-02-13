@@ -78,11 +78,11 @@ export const HuggingFace = () => {
   }> => {
     const headline = await backOff<string>(
       () => getHeadline(text),
-      { maxDelay: 5000 },
+      { maxDelay: 60000 },
     );
     const summary = await backOff<string>(
       () => getSummary(text),
-      { maxDelay: 5000 },
+      { maxDelay: 60000 },
     );
 
     return {
