@@ -1,6 +1,10 @@
 service: ai-writer
 frameworkVersion: '3'
 
+params:
+  default:
+    dynamoTable: summaries-${opt:stage, "dev"}
+
 provider:
   name: aws
   logRetentionInDays: 1
@@ -9,6 +13,8 @@ provider:
     SSM_PARAMETER_STORE_TTL: 60
     PARAMETERS_SECRETS_EXTENSION_HTTP_PORT: 9876
     OPENAI_PARAMETER_NAME: /openai/api-key
+    HUGGING_FACE_KEY: /huggingface/api-key
+    DYNAMO_TABLE: ${param:dynamoTable}
   iam:
     role:
       statements:
@@ -16,6 +22,10 @@ provider:
           Action:
             - ssm:GetParameter
             - kms:Decrypt
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - dynamodb:*
           Resource: '*'
 
 plugins:
@@ -32,21 +42,46 @@ custom:
 
 functions:
   fetchArticles:
+    timeout: 300
     handler: src/steps/fetchArticles.handler
     layers:
       - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
   extractArticleText:
+    timeout: 300
     handler: src/steps/extractArticleText.handler
     layers:
       - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
   summarizeArticle:
+    timeout: 300
     handler: src/steps/summarizeArticle.handler
     layers:
       - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
   publishArticles:
+    timeout: 300
     handler: src/steps/publishArticles.handler
     layers:
       - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
+
+resources:
+  Resources:
+    SummariesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${param:dynamoTable}
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
 
 
 stepFunctions:
@@ -78,6 +113,7 @@ stepFunctions:
             Next: SummarizeAll
           SummarizeAll:
             Type: Map
+            MaxConcurrency: 1
             Iterator:
               StartAt: SummarizeArticle
               States:
