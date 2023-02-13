@@ -1,5 +1,5 @@
 import { DynamoDB } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, PutCommand, BatchWriteCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand, BatchWriteCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { addDays, format } from 'date-fns';
 import { v4 as uuid } from 'uuid';
 
@@ -63,11 +63,50 @@ export const DynamoDBService = () => {
         })),
       },
     }));
+  };
+
+  const getDailySummaries = async ({
+    lastEvaluatedKey,
+  }: {
+    lastEvaluatedKey?: { pk: string; sk: string };
+  }) => {
+    const { Items: summaries, LastEvaluatedKey } = await ddb.send(new QueryCommand({
+      TableName,
+      IndexName: 'docType-index',
+      KeyConditionExpression: "docType = :docType",
+      ExpressionAttributeValues: {
+        ":docType": "group",
+      },
+      Limit: 10,
+      ExclusiveStartKey: lastEvaluatedKey,
+    }));
+
+    return {
+      lastEvaluatedKey: LastEvaluatedKey,
+      summaries,
+    };
+  }
+
+  const getArticles = async ({
+    pk,
+  }) => {
+    const { Items } = await ddb.send(new QueryCommand({
+      TableName,
+      KeyConditionExpression: "pk = :pk and begins_with(sk, :sk)",
+      ExpressionAttributeValues: {
+        ":pk": pk,
+        ":sk": 'ARTICLE#',
+      },
+    }));
+
+    return Items;
   }
 
   return {
     saveArticles,
     groupExists,
     getPK,
+    getDailySummaries,
+    getArticles,
   };
 };
