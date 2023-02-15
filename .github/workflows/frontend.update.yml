@@ -30,7 +30,7 @@ jobs:
          path: '**/node_modules'
          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.lock') }}
     - name: Install
-      run: npm ci
+      run: npm i
     - name: Fetch Latest Articles
       run: npm run downloadArticles
     - name: Commit Latest Articles
