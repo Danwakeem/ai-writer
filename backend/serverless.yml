@@ -14,6 +14,7 @@ provider:
     PARAMETERS_SECRETS_EXTENSION_HTTP_PORT: 9876
     OPENAI_PARAMETER_NAME: /openai/api-key
     HUGGING_FACE_KEY: /huggingface/api-key
+    MEDIUM_CONFIG: /medium/config
     S3_BUCKET: ${param:s3Bucket}
   iam:
     role:
@@ -81,7 +82,7 @@ stepFunctions:
       events:
         - schedule:
             # Run at 6:10 PM CST every day
-            rate: cron(10 12 * * *)
+            rate: cron(10 12 * ? *)
             enabled: true
       name: articleGenerator
       definition:
