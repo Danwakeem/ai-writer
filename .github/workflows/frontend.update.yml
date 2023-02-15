@@ -16,7 +16,7 @@ jobs:
     environment: production
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [16.x]
 
     steps:
     - uses: actions/checkout@v1
@@ -24,6 +24,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Cached Modules
+      uses: actions/cache@v2
+      with:
+         path: '**/node_modules'
+         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
     - name: Install
       run: npm ci
     - name: Fetch Latest Articles
