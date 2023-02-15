@@ -39,7 +39,7 @@ jobs:
         with:
           commit_message: "GithubAction: Updated Latest Articles"
           branch: main
-          file_pattern: 'data/blog/*.mdx'
+          file_pattern: 'frontend/data/blog/*.mdx *.mdx'
           commit_author: Author <actions@github.com>
           skip_dirty_check: false
           skip_fetch: false
