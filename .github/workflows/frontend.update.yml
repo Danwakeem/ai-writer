@@ -39,4 +39,4 @@ jobs:
         git config --global user.email "danwakeem@gmail.com"
         git add ./data/blog
         git commit -am "GithubAction: Updated Latest Articles"
-        git push
+        git push origin HEAD:main
