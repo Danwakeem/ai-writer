@@ -37,6 +37,7 @@ jobs:
       run: npm run downloadArticles
     - uses: stefanzweifel/git-auto-commit-action@v4
     - name: Commit Latest Articles
+      uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: "GithubAction: Updated Latest Articles"
         file_pattern: 'data/blog/*.mdx'
