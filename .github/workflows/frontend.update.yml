@@ -42,5 +42,3 @@ jobs:
         file_pattern: 'data/blog/*.mdx'
         commit_author: Author <actions@github.com>
         skip_fetch: true
-        # Optional. Create given branch name in local and remote repository.
-        create_branch: true
