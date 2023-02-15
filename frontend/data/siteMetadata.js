@@ -1,8 +1,8 @@
 const siteMetadata = {
-  title: 'Daily News: by ChatGPT',
+  title: 'AI Daily News',
   author: 'Danwakeem',
-  headerTitle: 'Daily News: by ChatGPT',
-  description: 'A blog of daily articles summarized and titled by ChatGPT',
+  headerTitle: 'AI Daily News',
+  description: 'A blog of daily articles summarized and titled by pre-trained HuggingFace summary models.',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://ai-writer.vercel.app',
@@ -24,7 +24,7 @@ const siteMetadata = {
     plausibleDataDomain: '', // e.g. tailwind-nextjs-starter-blog.vercel.app
     simpleAnalytics: false, // true or false
     umamiWebsiteId: '', // e.g. 123e4567-e89b-12d3-a456-426614174000
-    googleAnalyticsId: '', // e.g. UA-000000-2 or G-XXXXXXX
+    googleAnalyticsId: 'G-HVD65E63DZ', // e.g. UA-000000-2 or G-XXXXXXX
     posthogAnalyticsId: '', // posthog.init e.g. phc_5yXvArzvRdqtZIsHkEm3Fkkhm3d0bEYUXCaFISzqPSQ
   },
   newsletter: {
