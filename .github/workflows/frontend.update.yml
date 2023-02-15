@@ -35,12 +35,12 @@ jobs:
       - name: Fetch Latest Articles
         run: npm run downloadArticles
       - name: Commit Latest Articles
-        - uses: stefanzweifel/git-auto-commit-action@v4
-          with:
-            commit_message: "GithubAction: Updated Latest Articles"
-            branch: main
-            file_pattern: 'data/blog/*.mdx'
-            commit_author: Author <actions@github.com>
-            skip_dirty_check: false
-            skip_fetch: false
-            skip_checkout: false
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "GithubAction: Updated Latest Articles"
+          branch: main
+          file_pattern: 'data/blog/*.mdx'
+          commit_author: Author <actions@github.com>
+          skip_dirty_check: false
+          skip_fetch: false
+          skip_checkout: false
