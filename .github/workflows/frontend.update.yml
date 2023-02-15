@@ -38,5 +38,5 @@ jobs:
         git config --global user.name "GitHub Actions"
         git config --global user.email "danwakeem@gmail.com"
         git add ./data/blog
-        git commit -m "Updated Latest Articles"
+        git commit -am "GithubAction: Updated Latest Articles"
         git push
