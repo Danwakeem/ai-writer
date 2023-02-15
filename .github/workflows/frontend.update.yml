@@ -32,11 +32,17 @@ jobs:
         run: npm i
       - name: Fetch Latest Articles
         run: npm run downloadArticles
+      - name: Checkout main
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
       - name: Commit Latest Articles
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "danwakeem@gmail.com"
-          git checkout --track origin/main
-          git add ./data/blog
-          git commit -am "GithubAction: Updated Latest Articles"
-          git push origin HEAD:main
+        - uses: stefanzweifel/git-auto-commit-action@v4
+          with:
+            commit_message: "GithubAction: Updated Latest Articles"
+            branch: main
+            file_pattern: 'data/blog/*.mdx'
+            commit_author: Author <actions@github.com>
+            skip_dirty_check: false
+            skip_fetch: false
+            skip_checkout: false
