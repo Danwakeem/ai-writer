@@ -33,7 +33,7 @@ jobs:
       run: npm ci
     - name: Fetch Latest Articles
       run: npm run downloadArticles
-    - commit: Commit Latest Articles
+    - name: Commit Latest Articles
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "danwakeem@gmail.com"
