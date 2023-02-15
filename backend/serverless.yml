@@ -78,15 +78,11 @@ resources:
 stepFunctions:
   stateMachines:
     articleGenerator:
-      # events:
-      #   - schedule:
-      #       rate: rate(10 minutes)
-      #       enabled: true
-      #       input:
-      #         key1: value1
-      #         key2: value2
-      #         stageParams:
-      #           stage: dev
+      events:
+        - schedule:
+            # Run at 6:10 PM CST every day
+            rate: 'cron(10 12 * * *)'
+            enabled: true
       name: articleGenerator
       definition:
         Comment: "A article generated that summarizes daily news from ABC News"
