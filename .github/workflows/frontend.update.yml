@@ -15,33 +15,28 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
       contents: write
-    strategy:
-      matrix:
-        node-version: [16.x]
-
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: Cached Modules
-      uses: actions/cache@v2
-      with:
-         path: '**/node_modules'
-         key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.lock') }}
-    - name: Install
-      run: npm i
-    - name: Fetch Latest Articles
-      run: npm run downloadArticles
-    - uses: stefanzweifel/git-auto-commit-action@v4
-    - name: Commit Latest Articles
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: "GithubAction: Updated Latest Articles"
-        file_pattern: 'data/blog/*.mdx'
-        branch: main
-        commit_author: Author <actions@github.com>
-        skip_fetch: false
-        skip_checkout: false
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+      - name: Cached Modules
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.lock') }}
+      - name: Install
+        run: npm i
+      - name: Fetch Latest Articles
+        run: npm run downloadArticles
+      - name: Commit Latest Articles
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "danwakeem@gmail.com"
+          git checkout --track origin/main
+          git add ./data/blog
+          git commit -am "GithubAction: Updated Latest Articles"
+          git push origin HEAD:main
