@@ -34,6 +34,7 @@ const saveStringToFile = (string, fileName) => {
     for(const { Key } of blogArticles) {
       const article = await getFromUrl(`${baseUrl}/${Key}`);
       saveStringToFile(article, Key);
+      console.log('Downloaded: ', Key);
     }
   } catch(error) {
     console.error(error);

@@ -8,6 +8,7 @@ on:
   schedule:
     # Run at 7:37 PM CST every day
     - cron:  '37 13 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
