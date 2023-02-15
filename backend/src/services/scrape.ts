@@ -31,7 +31,8 @@ export const Scrape = () => {
       return textFromChildParagraphTags;
     };
     const parentElement = $('article[data-testid="prism-article-body"]');
-    return getAllTextFromChildParagraphTags(parentElement).join('\n')
+    const text = getAllTextFromChildParagraphTags(parentElement).join('\n');
+    return text;
   }
 
   return {

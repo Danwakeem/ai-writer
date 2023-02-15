@@ -1,7 +1,8 @@
+import { ParsedArticle } from '../lib/types';
 import { HuggingFace } from '../services/huggingFace'
 const huggingFace = HuggingFace();
 
-export const handler = async ({ text }: {text: string}) => {
+export const handler = async ({ text, tag, link }: ParsedArticle) => {
   const {
     summary,
     headline,
@@ -9,5 +10,7 @@ export const handler = async ({ text }: {text: string}) => {
   return {
     summary,
     headline,
+    tag,
+    link,
   };
 }

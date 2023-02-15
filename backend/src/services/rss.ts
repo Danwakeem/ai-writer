@@ -36,7 +36,7 @@ export interface Item {
 
 
 export const RSSService = () => {
-  const rssFeed = 'https://abcnews.go.com/abcnews/internationalheadlines';
+  const rssFeed = 'https://abcnews.go.com/abcnews/topstories';
 
   const makeHttpsRequest = (url: string): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -59,7 +59,10 @@ export const RSSService = () => {
     const parser = new XMLParser();
     const json = parser.parse(xml) as XMLRoot;
 
-    return json.rss.channel.item.map((item) => item.link);
+    return json.rss.channel.item.filter((item) => item.category !== 'Live').map((item) => ({
+      link: item.link,
+      tag: item.category,
+    }));
   };
 
   return {

@@ -3,7 +3,7 @@ frameworkVersion: '3'
 
 params:
   default:
-    dynamoTable: summaries-${opt:stage, "dev"}
+    s3Bucket: danwakeem-news-chat-summaries-${opt:stage, "dev"}
 
 provider:
   name: aws
@@ -14,7 +14,7 @@ provider:
     PARAMETERS_SECRETS_EXTENSION_HTTP_PORT: 9876
     OPENAI_PARAMETER_NAME: /openai/api-key
     HUGGING_FACE_KEY: /huggingface/api-key
-    DYNAMO_TABLE: ${param:dynamoTable}
+    S3_BUCKET: ${param:s3Bucket}
   iam:
     role:
       statements:
@@ -25,13 +25,12 @@ provider:
           Resource: '*'
         - Effect: Allow
           Action:
-            - dynamodb:*
+            - s3:*
           Resource: '*'
 
 plugins:
   - serverless-esbuild
   - serverless-step-functions
-  - serverless-appsync-plugin
 
 package:
   individually: true
@@ -40,45 +39,8 @@ custom:
   esbuild:
     bundle: true
     minify: false
-  appSync:
-    name: ai-writer-${sls:stage}
-    # domain:
-    #   name: ai-writer-api-${sls:stage}.danwakeem.com
-    #   certificateArn: ${param:domainCertArn}
-    authenticationType: AWS_LAMBDA
-    lambdaAuthorizerConfig:
-      functionName: authorizer
-    defaultMappingTemplates: # default templates. Useful for Lambda templates that are often repetitive. Will be used if the template is not specified in a resolver
-      request: false
-      response: false
-    mappingTemplates:
-      - dataSource: dailySummaries
-        type: Query
-        field: dailySummaries
-      - dataSource: articles
-        type: Query
-        field: articles
-    dataSources:
-      - type: AWS_LAMBDA
-        name: dailySummaries
-        config:
-          functionName: dailySummaries
-          serviceRoleArn: { Fn::GetAtt: [AppSyncLambdaServiceRole, Arn] }
-      - type: AWS_LAMBDA
-        name: articles
-        config:
-          functionName: articles
-          serviceRoleArn: { Fn::GetAtt: [AppSyncLambdaServiceRole, Arn] }
 
 functions:
-  authorizer:
-    handler: src/graphql/authorizer.handler
-  dailySummaries:
-    handler: src/graphql/query/dailySummaries.handler
-    timeout: 20
-  articles:
-    handler: src/graphql/query/articles.handler
-    timeout: 20
   fetchArticles:
     timeout: 300
     handler: src/steps/fetchArticles.handler
@@ -102,57 +64,16 @@ functions:
 
 resources:
   Resources:
-    AppSyncLambdaServiceRole:
-      Type: "AWS::IAM::Role"
+    SummariesBucket:
+      Type: AWS::S3::Bucket
       Properties:
-        RoleName: ai-writer-AppSync-Lambda
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal:
-                Service:
-                  - "appsync.amazonaws.com"
-              Action:
-                - "sts:AssumeRole"
-        Policies:
-          - PolicyName: ai-writer-AppSync-Lambda-Policy
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: "Allow"
-                  Action:
-                    - "lambda:invokeFunction"
-                  Resource:
-                    - "*"
-    SummariesTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${param:dynamoTable}
-        BillingMode: PAY_PER_REQUEST
-        KeySchema:
-          - AttributeName: pk
-            KeyType: HASH
-          - AttributeName: sk
-            KeyType: RANGE
-        AttributeDefinitions:
-          - AttributeName: pk
-            AttributeType: S
-          - AttributeName: sk
-            AttributeType: S
-          - AttributeName: docType
-            AttributeType: S
-        GlobalSecondaryIndexes:
-          - IndexName: docType-index
-            KeySchema:
-              - AttributeName: docType
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-        TimeToLiveSpecification:
-          AttributeName: ttl
-          Enabled: true
-
+        BucketName: ${param:s3Bucket}
+        AccessControl: PublicRead
+        LifecycleConfiguration:
+          Rules:
+            - Id: ExpireObjectsAfter20Days
+              Status: Enabled
+              ExpirationInDays: 20
 
 stepFunctions:
   stateMachines:

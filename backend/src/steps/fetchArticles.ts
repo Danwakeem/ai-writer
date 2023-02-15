@@ -1,41 +1,25 @@
 import { logger } from "../lib/logger";
 import { RSSService } from '../services/rss';
-import { DynamoDBService } from '../services/dynamodb';
+import { S3Service } from "../services/s3";
+const s3 = S3Service();
 const rss = RSSService();
-const ddb = DynamoDBService();
 
-const getEndPath = (url: string) => {
-  const split = url.split('/');
-  const end = split[split.length - 1];
-  const splitByDash = end.split('-');
-  splitByDash.pop();
-  return splitByDash.join('-');
-}
-
-export const handler = async (event: any) => {
+export const handler = async () => {
   logger.info('Fetching articles');
 
-  const groupExists = await ddb.groupExists(ddb.getPK());
-  if (groupExists) {
+  const articleExists = await s3.hasArticleForToday();
+  if (articleExists) {
     return {
       skip: 'true',
       articleUrls: [],
     }
   }
 
-  const articleUrls = await rss.getArticleUrls();
+  const articleData = await rss.getArticleUrls();
 
-  const basePaths: string[] = [];
   return {
     skip: 'false',
-    articleUrls: articleUrls
-      .reduce((arr: any, url: string) => {
-        if (!basePaths.includes(getEndPath(url))) {
-          basePaths.push(getEndPath(url));
-          arr.push(url);
-        }
-        return arr;
-      }, [])
+    articles: articleData
       // Limiting to only 10 articles for now :)
       .filter((val, i) => i < 10),
   };

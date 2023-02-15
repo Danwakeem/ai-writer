@@ -1,21 +1,24 @@
 import { Scrape } from './../services/scrape';
 import { logger } from "../lib/logger";
-import { State1 } from '../lib/types';
+import { State1, ParsedArticle } from '../lib/types';
 const scraper = Scrape();
 
 export const handler = async (event: State1) => {
-  const articleTexts = (await Promise.allSettled(
-      event.articleUrls.map(
-        (url) =>
-          scraper.abcNewsArticleScrape(url)
+  const parsedArticle: ParsedArticle[] = (await Promise.allSettled(
+      event.articles.map(
+        async ({link, tag}) => ({
+          link,
+          text: await scraper.abcNewsArticleScrape(link)
             .catch((err) => {
-              logger.error(`Error scraping url ${url}: ${err}`);
+              logger.error(`Error scraping url ${link}: ${err}`);
               return null;
-            })
+            }),
+          tag,
+        })
       )
     ))
-    .map(({ status, value }: any) => status === 'fulfilled' ? { text: value } : null)
+    .map(({ status, value }: any) => status === 'fulfilled' ? value : null)
     .filter(Boolean);
 
-  return articleTexts;
+  return parsedArticle;
 }
