@@ -43,4 +43,5 @@ jobs:
         file_pattern: 'data/blog/*.mdx'
         branch: main
         commit_author: Author <actions@github.com>
-        skip_fetch: true
+        skip_fetch: false
+        skip_checkout: false
