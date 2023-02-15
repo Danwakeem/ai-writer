@@ -20,7 +20,7 @@ const getFromUrl = (url) => {
 };
 
 const saveStringToFile = (string, fileName) => {
-  const path = `./data/blog/${fileName}`;
+  const path = `${__dirname}/../data/blog/${fileName}`;
   writeFileSync(path, string, { encoding: 'utf8' });
 };
 
