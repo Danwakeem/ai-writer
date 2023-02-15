@@ -1,5 +1,5 @@
 {
-  "name": "ai-writer",
+  "name": "ai-writer-summarizer",
   "version": "1.0.0",
   "description": "AI Writer that summarizes ABC World News and publishes the summaries as a single article to Medium",
   "main": "index.js",
