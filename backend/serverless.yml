@@ -81,7 +81,7 @@ stepFunctions:
       events:
         - schedule:
             # Run at 6:10 PM CST every day
-            rate: 'cron(10 12 * * *)'
+            rate: cron(10 12 * * *)
             enabled: true
       name: articleGenerator
       definition:
