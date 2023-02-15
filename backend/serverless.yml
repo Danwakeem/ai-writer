@@ -1,0 +1,132 @@
+service: ai-writer
+frameworkVersion: '3'
+
+params:
+  default:
+    s3Bucket: danwakeem-news-chat-summaries-${opt:stage, "dev"}
+
+provider:
+  name: aws
+  logRetentionInDays: 1
+  runtime: nodejs18.x
+  environment:
+    SSM_PARAMETER_STORE_TTL: 60
+    PARAMETERS_SECRETS_EXTENSION_HTTP_PORT: 9876
+    OPENAI_PARAMETER_NAME: /openai/api-key
+    HUGGING_FACE_KEY: /huggingface/api-key
+    S3_BUCKET: ${param:s3Bucket}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+            - kms:Decrypt
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - s3:*
+          Resource: '*'
+
+plugins:
+  - serverless-esbuild
+  - serverless-step-functions
+
+package:
+  individually: true
+
+custom:
+  esbuild:
+    bundle: true
+    minify: false
+
+functions:
+  fetchArticles:
+    timeout: 300
+    handler: src/steps/fetchArticles.handler
+    layers:
+      - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
+  extractArticleText:
+    timeout: 300
+    handler: src/steps/extractArticleText.handler
+    layers:
+      - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
+  summarizeArticle:
+    timeout: 300
+    handler: src/steps/summarizeArticle.handler
+    layers:
+      - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
+  publishArticles:
+    timeout: 300
+    handler: src/steps/publishArticles.handler
+    layers:
+      - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
+
+resources:
+  Resources:
+    SummariesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${param:s3Bucket}
+        AccessControl: PublicRead
+        LifecycleConfiguration:
+          Rules:
+            - Id: ExpireObjectsAfter20Days
+              Status: Enabled
+              ExpirationInDays: 20
+
+stepFunctions:
+  stateMachines:
+    articleGenerator:
+      # events:
+      #   - schedule:
+      #       rate: rate(10 minutes)
+      #       enabled: true
+      #       input:
+      #         key1: value1
+      #         key2: value2
+      #         stageParams:
+      #           stage: dev
+      name: articleGenerator
+      definition:
+        Comment: "A article generated that summarizes daily news from ABC News"
+        StartAt: FetchArticles
+        States:
+          FetchArticles:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [fetchArticles, Arn]
+            Next: ShouldSkip
+          ShouldSkip:
+            Type: Choice
+            Choices:
+              - Variable: "$.skip"
+                StringEquals: "true"
+                Next: Done
+            Default: ExtractArticleText
+          ExtractArticleText:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [extractArticleText, Arn]
+            Next: SummarizeAll
+          SummarizeAll:
+            Type: Map
+            MaxConcurrency: 1
+            Iterator:
+              StartAt: SummarizeArticle
+              States:
+                SummarizeArticle:
+                  Type: Task
+                  Resource:
+                    Fn::GetAtt: [summarizeArticle, Arn]
+                  End: true
+            Next: PublishArticles
+          PublishArticles:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [publishArticles, Arn]
+            End: true
+          Done:
+            Type: Pass
+            End: true
+  validate: true

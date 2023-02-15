@@ -1,0 +1,41 @@
+name: Frontend Update
+
+defaults:
+  run:
+    working-directory: frontend
+    
+on:
+  schedule:
+    # Run at 7:37 PM CST every day
+    - cron:  '37 13 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Cached Modules
+      uses: actions/cache@v2
+      with:
+         path: '**/node_modules'
+         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+    - name: Install
+      run: npm ci
+    - name: Fetch Latest Articles
+      run: npm run downloadArticles
+    - commit: Commit Latest Articles
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "danwakeem@gmail.com"
+        git add ./data/blog
+        git commit -m "Updated Latest Articles"
+        git push
