@@ -80,10 +80,8 @@ stepFunctions:
   stateMachines:
     articleGenerator:
       events:
-        - schedule:
-            # Run at 6:10 PM CST every day
-            schedule: cron(10 12 * * ? *)
-            enabled: true
+        # Run at 6:10 PM CST every day
+        - schedule: cron(10 12 * * ? *)
       name: articleGenerator
       definition:
         Comment: "A article generated that summarizes daily news from ABC News"
