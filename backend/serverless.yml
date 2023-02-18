@@ -14,6 +14,7 @@ provider:
     PARAMETERS_SECRETS_EXTENSION_HTTP_PORT: 9876
     OPENAI_PARAMETER_NAME: /openai/api-key
     HUGGING_FACE_KEY: /huggingface/api-key
+    GITHUB_KEY: /github/key
     MEDIUM_CONFIG: /medium/config
     S3_BUCKET: ${param:s3Bucket}
   iam:
@@ -80,8 +81,8 @@ stepFunctions:
   stateMachines:
     articleGenerator:
       events:
-        # Run at 6:10 PM CST every day
-        - schedule: cron(10 12 * * ? *)
+        # Run at 9:10 AM CST every day
+        - schedule: cron(10 15 * * ? *)
       name: articleGenerator
       definition:
         Comment: "A article generated that summarizes daily news from ABC News"
