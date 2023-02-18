@@ -1,3 +1,4 @@
+import { logger } from "../lib/logger";
 import { SSM } from "./ssm";
 
 const https = require('https');
@@ -17,6 +18,7 @@ export const GithubService = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'User-Agent': 'ai-writer',
           Authorization: `token ${key}`,
         },
       };
@@ -26,6 +28,7 @@ export const GithubService = () => {
           body += chunk;
         });
         res.on('end', () => {
+          logger.info('Github response', {body});
           resolve(body);
         });
       }).on('error', (error: any) => {

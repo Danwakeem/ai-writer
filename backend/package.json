@@ -10,7 +10,8 @@
     "deploy": "sls deploy",
     "invoke:fetchArticles": "serverless invoke local -f fetchArticles",
     "invoke:extractArticleText": "serverless invoke local -f extractArticleText -p samples/extractArticleText.json",
-    "invoke:summarizeArticle": "serverless invoke -f summarizeArticle -p samples/summarizeArticle.json -l"
+    "invoke:summarizeArticle": "serverless invoke -f summarizeArticle -p samples/summarizeArticle.json -l",
+    "invoke:publishArticles": "serverless invoke -f publishArticles -p samples/publishArticles.json -l"
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "^1.5.1",
