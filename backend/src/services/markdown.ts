@@ -16,7 +16,7 @@ title: '${title}'
 date: '${getDate()}'
 tags: ['${uniqueArrayValues(articles.map(({ tag }) => tag)).join('\', \'')}']
 draft: false
-summary: '${articles[0].headline.replaceAll(`'`, `\'`)}...'
+summary: '${articles[0].headline.replaceAll(`'`, ``)}...'
 ---
 
 ${articles.map(({ headline, summary, link }) => `## ${headline}\n${summary}\n\n[Original Article](${link})`).join('\n\n')}
