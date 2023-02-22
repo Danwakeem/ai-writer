@@ -1,0 +1,15 @@
+{
+  "name": "hugging-face-service",
+  "version": "1.0.0",
+  "description": "huggingface sagemaker create/destroy endpoints",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "sls deploy"
+  },
+  "author": "Danwakeem",
+  "license": "ISC",
+  "devDependencies": {
+    "serverless": "^3.27.0",
+    "serverless-python-requirements": "^6.0.0"
+  }
+}

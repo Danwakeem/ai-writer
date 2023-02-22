@@ -1,15 +1,15 @@
-name: Backend Deploy
+name: Backend Steps Deploy
 
 defaults:
   run:
-    working-directory: backend
+    working-directory: backend/steps
     
 on:
   push:
     branches: [ main ]
     paths:
-      - "backend/**"
-      - ".github/workflows/backend.yml"
+      - "backend/steps/**"
+      - ".github/workflows/backend.steps.yml"
   workflow_dispatch:
 
 jobs:

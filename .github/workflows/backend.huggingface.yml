@@ -1,0 +1,40 @@
+name: Backend Hugging Face Deploy
+
+defaults:
+  run:
+    working-directory: backend/huggingface
+    
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "backend/huggingface/**"
+      - ".github/workflows/backend.huggingface.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Cached Modules
+      uses: actions/cache@v2
+      with:
+         path: '**/node_modules'
+         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+    - name: Install
+      run: yarn install
+    - name: Deploy
+      run: yarn deploy

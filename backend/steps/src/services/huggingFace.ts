@@ -43,7 +43,7 @@ export const HuggingFace = () => {
   const getHeadline = async (text: string): Promise<string> => {
     logger.info('Getting headline', { text });
     const response = await makeHttpsPostRequest(
-      'https://api-inference.huggingface.co/models/snrspeaks/t5-one-line-summary',
+      'https://d406ontrgxrqkajo.us-east-1.aws.endpoints.huggingface.cloud',
       {
         inputs: text,
       }
