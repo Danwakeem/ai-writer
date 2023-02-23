@@ -7,9 +7,6 @@ defaults:
 on:
   repository_dispatch:
     types: [rebuild]
-  schedule:
-    # Run at 7:37 PM CST every day
-    - cron:  '37 13 * * *'
   workflow_dispatch:
 
 jobs:
