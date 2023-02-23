@@ -17,6 +17,8 @@ provider:
     GITHUB_KEY: /github/key
     MEDIUM_CONFIG: /medium/config
     S3_BUCKET: ${param:s3Bucket}
+    STAGE: ${opt:stage, "dev"}
+    HEADLINE_PREDICTOR_NAME: headline-predictor
   iam:
     role:
       statements:
@@ -28,6 +30,10 @@ provider:
         - Effect: Allow
           Action:
             - s3:*
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - lambda:*
           Resource: '*'
 
 plugins:
@@ -53,9 +59,19 @@ functions:
     handler: src/steps/extractArticleText.handler
     layers:
       - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
+  bootHuggingFace:
+    timeout: 400
+    handler: src/steps/bootHuggingFace.handler
+    layers:
+      - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
   summarizeArticle:
     timeout: 300
     handler: src/steps/summarizeArticle.handler
+    layers:
+      - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
+  shutDownHuggingFace:
+    timeout: 300
+    handler: src/steps/shutDownHuggingFace.handler
     layers:
       - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
   publishArticles:
@@ -104,6 +120,11 @@ stepFunctions:
             Type: Task
             Resource:
               Fn::GetAtt: [extractArticleText, Arn]
+            Next: BootHuggingFace
+          BootHuggingFace:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [bootHuggingFace, Arn]
             Next: SummarizeAll
           SummarizeAll:
             Type: Map
@@ -116,6 +137,11 @@ stepFunctions:
                   Resource:
                     Fn::GetAtt: [summarizeArticle, Arn]
                   End: true
+            Next: ShutDownHuggingFace
+          ShutDownHuggingFace:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [shutDownHuggingFace, Arn]
             Next: PublishArticles
           PublishArticles:
             Type: Task

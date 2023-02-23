@@ -19,15 +19,15 @@ package:
   exclude:
     - '**/*'
   include:
-    - headlines.py
+    - predictor.py
 
 functions:
-  createHeadlinePredictor:
-    handler: headlines.create
+  createPredictor:
+    handler: predictor.create
     timeout: 300
-  getHeadline:
-    handler: headlines.get_headline
+  predict:
+    handler: predictor.predict
     timeout: 300
-  removeHeadlinePredictor:
-    handler: headlines.remove
+  removePredictor:
+    handler: predictor.remove
     timeout: 300

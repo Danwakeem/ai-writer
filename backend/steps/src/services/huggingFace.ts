@@ -2,6 +2,7 @@ import https from 'https';
 import { backOff } from "exponential-backoff";
 import { SSM } from './ssm';
 import { logger } from '../lib/logger';
+import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 
 export type HuggingFaceRoot = HuggingFaceResponse[]
 
@@ -10,6 +11,7 @@ export interface HuggingFaceResponse {
   summary_text?: string
 }
 
+const lambda = new LambdaClient({});
 export const HuggingFace = () => {
   const ssm = SSM();
 
@@ -42,17 +44,20 @@ export const HuggingFace = () => {
 
   const getHeadline = async (text: string): Promise<string> => {
     logger.info('Getting headline', { text });
-    const response = await makeHttpsPostRequest(
-      'https://d406ontrgxrqkajo.us-east-1.aws.endpoints.huggingface.cloud',
-      {
-        inputs: text,
-      }
-    );
-    const json = JSON.parse(response) as HuggingFaceRoot;
+
+    const { Payload } = await lambda.send(new InvokeCommand({
+      FunctionName: `hugging-face-service-${process.env.STAGE}-predict`,
+      Payload: Buffer.from(JSON.stringify({
+        input: text,
+        predictorName: process.env.HEADLINE_PREDICTOR_NAME,
+      }), 'utf8'),
+    }));
+
+    const json = JSON.parse(Buffer.from(Payload || '{}')?.toString()) as HuggingFaceRoot;
     if (json?.[0]?.generated_text) {
       return json[0].generated_text;
     }
-    logger.info('Could not generate headline', { response });
+    logger.info('Could not generate headline', { Payload: Payload?.toString() });
     throw new Error('Could not generate headline');
   }
 
@@ -76,10 +81,7 @@ export const HuggingFace = () => {
     summary: string;
     headline: string;
   }> => {
-    const headline = await backOff<string>(
-      () => getHeadline(text),
-      { maxDelay: 120000 },
-    );
+    const headline = await getHeadline(text);
     const summary = await backOff<string>(
       () => getSummary(text),
       { maxDelay: 120000 },
