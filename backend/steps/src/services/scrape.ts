@@ -2,7 +2,7 @@ import https from 'https';
 import { load } from 'cheerio';
 
 export const Scrape = () => {
-  const getDataFromUrl = (url): Promise<string> => {
+  const getDataFromUrl = (url: any): Promise<string> => {
     return new Promise((resolve, reject) => {
       https.get(url, (res) => {
         let data = '';
@@ -18,11 +18,11 @@ export const Scrape = () => {
     });
   }
 
-  const abcNewsArticleScrape = async (link) => {
+  const abcNewsArticleScrape = async (link: any) => {
     const html = await getDataFromUrl(link);
     const $ = load(html);
   
-    const getAllTextFromChildParagraphTags = (parentElement) => {
+    const getAllTextFromChildParagraphTags = (parentElement: any) => {
       const childParagraphTags = parentElement.find('p');
       const textFromChildParagraphTags: string[] = [];
       for (let i = 0; i < childParagraphTags.length; i++) {

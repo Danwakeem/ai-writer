@@ -1,0 +1,33 @@
+service: hugging-face-service
+
+provider:
+  name: aws
+  runtime: python3.8
+  architecture: arm64
+  iam:
+    role: !Sub arn:aws:iam::${AWS::AccountId}:role/sagemaker-lambda
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+
+package:
+  individually: false
+  exclude:
+    - '**/*'
+  include:
+    - predictor.py
+
+functions:
+  createPredictor:
+    handler: predictor.create
+    timeout: 300
+  predict:
+    handler: predictor.predict
+    timeout: 300
+  removePredictor:
+    handler: predictor.remove
+    timeout: 300

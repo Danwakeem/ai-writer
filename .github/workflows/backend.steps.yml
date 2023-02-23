@@ -1,0 +1,36 @@
+name: Backend Steps Deploy
+
+defaults:
+  run:
+    working-directory: backend/steps
+    
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "backend/steps/**"
+      - ".github/workflows/backend.steps.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+    - name: Cached Modules
+      uses: actions/cache@v3
+      with:
+         path: '**/node_modules'
+         key: steps-${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+    - name: Install
+      run: yarn install
+    - name: Deploy
+      run: yarn deploy
