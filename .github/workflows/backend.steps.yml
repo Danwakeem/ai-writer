@@ -23,13 +23,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-    - name: Cached Modules
-      uses: actions/cache@v3
       with:
-         path: '**/node_modules'
-         key: steps-${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+        node-version: '18.x'
+        cache: 'yarn'
+        cache-dependency-path: |
+          **/yarn.lock
+          **/package-lock.json
     - name: Install
       run: yarn install
     - name: Deploy
