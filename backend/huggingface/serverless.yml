@@ -3,7 +3,6 @@ service: hugging-face-service
 provider:
   name: aws
   runtime: python3.8
-  architecture: arm64
   iam:
     role: !Sub arn:aws:iam::${AWS::AccountId}:role/sagemaker-lambda
 
