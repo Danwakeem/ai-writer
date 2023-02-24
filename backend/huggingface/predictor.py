@@ -2,12 +2,6 @@ import sagemaker
 from sagemaker.huggingface.model import HuggingFaceModel, HuggingFacePredictor
 
 def create_predictor(predictor_name, hub):
-  try:
-    maybe_predictor = get_predictor(predictor_name)
-    return maybe_predictor
-  except:
-    pass
-
   role = sagemaker.get_execution_role()
   # create Hugging Face Model Class
   huggingface_model = HuggingFaceModel(
@@ -38,8 +32,11 @@ def delete_predictor(predictor):
     predictor.delete_endpoint()
 
 def create(event, context):
-  create_predictor(event["predictorName"], event["hub"])
-  return event
+  try:
+    create_predictor(event["predictorName"], event["hub"])
+    return event
+  except:
+    return event
 
 def predict(event, context):
   predictor_name = event["predictorName"]
