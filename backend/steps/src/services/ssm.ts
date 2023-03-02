@@ -23,7 +23,7 @@ export interface ResultMetadata {}
 
 export const SSM = () => {
   // Make http request
-  const request = (name): Promise<ParamResponse> => new Promise((resolve, reject) => {
+  const request = (name: string): Promise<ParamResponse> => new Promise((resolve, reject) => {
     const options = {
       hostname: 'localhost',
       port: process.env.PARAMETERS_SECRETS_EXTENSION_HTTP_PORT,
@@ -35,8 +35,8 @@ export const SSM = () => {
       },
     };
 
-    const req = http.request(options, (res) => {
-      res.on('data', (d) => {
+    const req = http.request(options, (res: any) => {
+      res.on('data', (d: Buffer) => {
         try {
           const json = JSON.parse(d.toString());
           resolve(json);
@@ -46,14 +46,14 @@ export const SSM = () => {
       });
     });
 
-    req.on('error', (error) => {
+    req.on('error', (error: any) => {
       reject(error);
     });
 
     req.end();
   });
 
-  const getLocalParameter = async (name): Promise<string> => {
+  const getLocalParameter = async (name: string): Promise<string> => {
     const res = await request(name);
     return res?.Parameter?.Value;
   }
