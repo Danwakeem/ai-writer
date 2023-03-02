@@ -1,5 +1,4 @@
 import { ChatCompletionRequestMessage, ChatCompletionResponseMessage, Configuration, OpenAIApi  } from 'openai';
-import { logger } from '../lib/logger';
 import { ParsedArticle, SummarizedArticle } from '../lib/types';
 import { SSM } from './ssm';
 
