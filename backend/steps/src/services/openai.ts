@@ -19,7 +19,9 @@ export const OpenAI = () => {
     const { data: response } = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages,
-    })
+    }, {
+      timeout: 60000, // 1 minute
+    });
 
     return response?.choices?.[0]?.message;
   };

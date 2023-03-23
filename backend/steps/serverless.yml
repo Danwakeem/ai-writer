@@ -65,7 +65,7 @@ functions:
     layers:
       - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
   summarizeAllArticles:
-    timeout: 300
+    timeout: 600
     handler: src/steps/summarizeAllArticles.handler
     layers:
       - arn:aws:lambda:us-east-1:177933569100:layer:AWS-Parameters-and-Secrets-Lambda-Extension:2
