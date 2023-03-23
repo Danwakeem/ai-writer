@@ -14,7 +14,7 @@ export const MarkdownService = () => {
     return `---
 title: '${title}'
 date: '${getDate()}'
-tags: ['${uniqueArrayValues(articles.map(({ tag }) => tag)).join('\', \'')}']
+tags: ['${uniqueArrayValues(articles.map(({ tag }) => tag.replace(`'`, ''))).join('\', \'')}']
 draft: false
 summary: '${articles[0].headline.replaceAll(`'`, ``)}...'
 ---
