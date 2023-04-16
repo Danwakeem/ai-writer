@@ -1,6 +1,7 @@
 import { ChatCompletionRequestMessage, ChatCompletionResponseMessage, Configuration, OpenAIApi  } from 'openai';
 import { ParsedArticle, SummarizedArticle } from '../lib/types';
 import { SSM } from './ssm';
+import { logger } from './../lib/logger';
 
 export const OpenAI = () => {
   const ssm = SSM();
@@ -50,13 +51,18 @@ export const OpenAI = () => {
       const message = await summarize(article.text, messages);
 
       if (message !== undefined) {
-        const { headline, summary, tag } = JSON.parse(message.content);
-        finalOutput.push({
-          headline,
-          summary,
-          tag,
-          link: article.link,
-        });
+        try {
+          const { headline, summary, tag } = JSON.parse(message.content);
+          finalOutput.push({
+            headline,
+            summary,
+            tag,
+            link: article.link,
+          });
+        } catch(e) {
+          logger.error('OpenAI parsing error', { error: e, message });
+          throw e;
+        }
       }
     }
 
