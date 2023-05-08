@@ -52,7 +52,9 @@ ${article.text}`,
 
       if (message !== undefined) {
         try {
-          const { headline, summary, tag } = JSON.parse(message.content);
+          const content = message.content.match(/{(.|\s)*}/gm);
+          if (content === null) throw new Error('OpenAI parsing error');
+          const { headline, summary, tag } = JSON.parse(content[0]);
           finalOutput.push({
             headline,
             summary,
