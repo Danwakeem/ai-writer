@@ -46,7 +46,7 @@ export const OpenAI = () => {
   "tag": "A short phrase consisting of 1 to two words that the article is best categorized by"
 }
 <text>
-${articleText}
+${article.text}
 </text>
 The JSON response:`,
       });
