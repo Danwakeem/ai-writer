@@ -39,13 +39,16 @@ export const OpenAI = () => {
       ];
       messages.push({
         role: 'user',
-        content: `Summarize the following text and your response should be an RFC8259 compliant JSON response following this format without deviation.
+        content: `Summarize the text in between the <text></text> tags. Do not include any explanations, only provide a  RFC8259 compliant JSON response following this format without deviation.
 {
   "headline": "A click bait style short description of the text",
   "summary": "A creatively paraphrased summary of the text",
   "tag": "A short phrase consisting of 1 to two words that the article is best categorized by"
 }
-${article.text}`,
+<text>
+${articleText}
+</text>
+The JSON response:`,
       });
 
       const message = await summarize(article.text, messages);
