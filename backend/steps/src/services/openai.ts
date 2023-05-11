@@ -1,5 +1,6 @@
 import { ChatCompletionRequestMessage, ChatCompletionResponseMessage, Configuration, OpenAIApi  } from 'openai';
 import { ParsedArticle, SummarizedArticle } from '../lib/types';
+import { jsonrepair } from 'jsonrepair';
 import { SSM } from './ssm';
 import { logger } from './../lib/logger';
 
@@ -57,7 +58,7 @@ The JSON response:`,
         try {
           const content = message.content.match(/{(.|\s)*}/gm);
           if (content === null) throw new Error('OpenAI parsing error');
-          const { headline, summary, tag } = JSON.parse(content[0]);
+          const { headline, summary, tag } = JSON.parse(jsonrepair(content[0]));
           finalOutput.push({
             headline,
             summary,
@@ -66,7 +67,7 @@ The JSON response:`,
           });
         } catch(e) {
           const content = message.content.match(/{(.|\s)*}/gm);
-          console.log(content[0]);
+          console.log(content?.[0]);
           logger.error('OpenAI parsing error', { error: e, message });
           throw e;
         }
