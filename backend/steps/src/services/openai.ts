@@ -65,6 +65,8 @@ The JSON response:`,
             link: article.link,
           });
         } catch(e) {
+          const content = message.content.match(/{(.|\s)*}/gm);
+          console.log(content[0]);
           logger.error('OpenAI parsing error', { error: e, message });
           throw e;
         }
