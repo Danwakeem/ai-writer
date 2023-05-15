@@ -130,6 +130,12 @@ stepFunctions:
             Type: Task
             Resource:
               Fn::GetAtt: [summarizeAllArticles, Arn]
+            Retry:
+            - ErrorEquals:
+              - States.ALL
+              IntervalSeconds: 5
+              MaxAttempts: 5
+              BackoffRate: 2
             Next: PublishArticles          
           PublishArticles:
             Type: Task
