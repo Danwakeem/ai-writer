@@ -17,10 +17,12 @@ export async function getAllTags(type) {
     if (data.tags && data.draft !== true) {
       data.tags.forEach((tag) => {
         const formattedTag = kebabCase(tag)
-        if (formattedTag in tagCount) {
-          tagCount[formattedTag] += 1
-        } else {
-          tagCount[formattedTag] = 1
+        if (tag !== '') {
+          if (formattedTag in tagCount) {
+            tagCount[formattedTag] += 1
+          } else {
+            tagCount[formattedTag] = 1
+          }
         }
       })
     }
