@@ -4,6 +4,8 @@ import { jsonrepair } from 'jsonrepair';
 import { SSM } from './ssm';
 import { logger } from './../lib/logger';
 
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const OpenAI = () => {
   const ssm = SSM();
 
@@ -72,6 +74,9 @@ The JSON response:`,
           throw e;
         }
       }
+
+      // Give chatGPT a break between requests
+      await wait(5000);
     }
 
     return finalOutput;

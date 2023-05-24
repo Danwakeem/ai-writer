@@ -133,7 +133,7 @@ stepFunctions:
             Retry:
             - ErrorEquals:
               - States.ALL
-              IntervalSeconds: 5
+              IntervalSeconds: 120
               MaxAttempts: 5
               BackoffRate: 2
             Next: PublishArticles          
